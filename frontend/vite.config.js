@@ -1,2 +1,7 @@
+// import {defineConfig} from 'vite';
+// export default defineConfig({server:{port:5173,strictPort:true,proxy:{'/api':{target:process.env.API_PROXY_TARGET||'http://localhost:8080',changeOrigin:true}}}});
+
+
+
 import {defineConfig} from 'vite';
-export default defineConfig({server:{port:5173,strictPort:true,proxy:{'/api':{target:process.env.API_PROXY_TARGET||'http://localhost:8080',changeOrigin:true}}}});
+export default defineConfig({server:{host:'0.0.0.0',port:5173,strictPort:true,proxy:{'/api':{target:process.env.API_PROXY_TARGET||'http://api:8080',changeOrigin:true}}}});
