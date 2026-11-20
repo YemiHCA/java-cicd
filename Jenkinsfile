@@ -1,4 +1,5 @@
 
+
 pipeline {
     agent any
 
@@ -11,22 +12,28 @@ pipeline {
 
         stage('Checkout Source Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/YemiHCA/java-cicd.git'
+                echo 'Source code checked out from GitHub'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'mvn -B clean install'
+                dir('backend') {
+                    sh 'pwd'
+                    sh 'ls -la'
+                    sh 'find src/main/java -type f'
+                    sh 'mvn -B clean install'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 sh """
-                    docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
-                    docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest
+                    docker build \
+                    -f Dockerfile \
+                    -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                    backend
                 """
             }
         }
@@ -42,10 +49,9 @@ pipeline {
                 ]) {
                     sh '''
                         echo "$DOCKER_TOKEN" | docker login \
-                            -u "$DOCKERHUB_USERNAME" --password-stdin
+                        -u "$DOCKERHUB_USERNAME" --password-stdin
 
                         docker push ${IMAGE_NAME}:${BUILD_NUMBER}
-                        docker push ${IMAGE_NAME}:latest
 
                         docker logout
                     '''
