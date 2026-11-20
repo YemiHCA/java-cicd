@@ -1,0 +1,41 @@
+pipeline{
+    agent any
+    environment{
+       DOCKERHUB_USERNAME = "yemmie69"
+       IMAGE_NAME = "${DOCKERHUB_USERNAME}/java-cicd"
+    }
+    stages{
+        stage("checkout source code"){
+        }
+    }
+           
+    stage("install dependencies"){
+        steps{
+            sh "mvn -B clean install"
+        }
+    }
+        stage("Build docker image"){
+            steps{
+                sh "docker build -t ${IMAGE-NAME}:${BUILD_NUMBER}"
+            }
+        }  
+
+        stage("push to dockerhub"){
+            steps{
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'docker-credentials',
+                        usernameVariable: 'DOCKERHUB-USERNAME',
+                        passwordVariable: 'DOCKER_TOKEN'
+                    )
+                ]){
+                    sh """echo "${DOCKER_TOKEN}" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                    docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+                    docker logout
+                    """
+                }
+            }
+
+        }}}
+                
+            }
